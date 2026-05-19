@@ -1,5 +1,5 @@
 package dao;
 
-public class Client {
+public class ClientDao {
     String name;
 }
