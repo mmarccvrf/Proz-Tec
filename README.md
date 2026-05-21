@@ -1,4 +1,4 @@
-💻 Proz-Tec
+# 💻 Proz-Tec
 Um sistema desenvolvido para simular o gerenciamento de uma loja online.
 
 🎯 Objetivo do Projeto
