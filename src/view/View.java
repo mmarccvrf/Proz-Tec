@@ -2,8 +2,10 @@ package view;
 
 import controller.ClienteController;
 import controller.FornecedorController;
+import controller.ProdutoController;
 import model.ClienteModel;
 import model.FornecedorModel;
+import model.ProdutoModel;
 import utils.ScannerUtil;
 import utils.ViewUtil;
 
@@ -16,10 +18,12 @@ public class View {
 
     private final ClienteController clienteController;
     private final FornecedorController fornecedorController;
+    private final ProdutoController produtoController;
 
     public View() {
         this.clienteController = new ClienteController();
         this.fornecedorController = new FornecedorController();
+        this.produtoController = new ProdutoController();
     }
 
     /**
@@ -31,7 +35,8 @@ public class View {
             exibirCabecalhoPrincipal();
             System.out.println("1. [CRUD] Gerenciar Clientes");
             System.out.println("2. [CRUD] Gerenciar Fornecedores");
-            System.out.println("3. Realizar Login de Exemplo (Original)");
+            System.out.println("3. [CRUD] Gerenciar Produtos");
+            System.out.println("4. Realizar Login de Exemplo (Original)");
             System.out.println("0. Sair do Sistema");
             System.out.println();
             System.out.print("Escolha uma opção: ");
@@ -46,6 +51,9 @@ public class View {
                     menuFornecedores();
                     break;
                 case "3":
+                    menuProdutos();
+                    break;
+                case "4":
                     menuLogin();
                     break;
                 case "0":
@@ -144,6 +152,54 @@ public class View {
                     break;
                 case "5":
                     excluirFornecedor();
+                    break;
+                case "0":
+                    noSubmenu = false;
+                    break;
+                default:
+                    System.out.println("\n[AVISO] Opção inválida! Tente novamente.");
+                    pausar();
+            }
+        }
+    }
+
+    // ==========================================
+    // Submenu de Produtos
+    // ==========================================
+    private void menuProdutos() {
+        boolean noSubmenu = true;
+        while (noSubmenu) {
+            ViewUtil.clearConsole();
+            ViewUtil.linha(50);
+            System.out.println("\n       SISTEMA PROZ-TEC - GERENCIAR PRODUTOS       ");
+            ViewUtil.linha(50);
+            System.out.println();
+            System.out.println("1. Cadastrar Novo Produto");
+            System.out.println("2. Listar Todos os Produtos");
+            System.out.println("3. Buscar Produto por ID");
+            System.out.println("4. Atualizar Cadastro de Produto");
+            System.out.println("5. Excluir Produto");
+            System.out.println("0. Voltar ao Menu Principal");
+            System.out.println();
+            System.out.print("Escolha uma opção: ");
+
+            String opcao = ScannerUtil.getString().trim();
+
+            switch (opcao) {
+                case "1":
+                    cadastrarProduto();
+                    break;
+                case "2":
+                    listarProdutos();
+                    break;
+                case "3":
+                    buscarProduto();
+                    break;
+                case "4":
+                    atualizarProduto();
+                    break;
+                case "5":
+                    excluirProduto();
                     break;
                 case "0":
                     noSubmenu = false;
@@ -557,6 +613,260 @@ public class View {
             System.out.println("\nOperação cancelada de forma segura.");
         }
         pausar();
+    }
+
+    // ==========================================
+    // Fluxos CRUD Produto
+    // ==========================================
+
+    private void cadastrarProduto() {
+        ViewUtil.clearConsole();
+        ViewUtil.linha(50);
+        System.out.println("\n              CADASTRAR NOVO PRODUTO              ");
+        ViewUtil.linha(50);
+        System.out.println();
+
+        System.out.print("Digite o ID do Produto (apenas números): ");
+        String idInput = ScannerUtil.getString().trim();
+        Integer id = null;
+        try {
+            id = Integer.parseInt(idInput);
+        } catch (NumberFormatException e) {
+            System.out.println("[ERRO] ID inválido. Deve ser um número inteiro.");
+            pausar();
+            return;
+        }
+
+        System.out.print("Digite o Nome do Produto: ");
+        String nome = ScannerUtil.getString();
+
+        System.out.print("Digite a Quantidade em Estoque: ");
+        String quantInput = ScannerUtil.getString().trim();
+        Integer quant = null;
+        try {
+            quant = Integer.parseInt(quantInput);
+        } catch (NumberFormatException e) {
+            System.out.println("[ERRO] Quantidade inválida. Deve ser um número inteiro.");
+            pausar();
+            return;
+        }
+
+        System.out.print("Digite o Valor do Produto (inteiro): ");
+        String valorInput = ScannerUtil.getString().trim();
+        Integer valor = null;
+        try {
+            valor = Integer.parseInt(valorInput);
+        } catch (NumberFormatException e) {
+            System.out.println("[ERRO] Valor inválido. Deve ser um número inteiro.");
+            pausar();
+            return;
+        }
+
+        System.out.print("Digite o ID do Fornecedor (ou Enter para nenhum): ");
+        String fornInput = ScannerUtil.getString().trim();
+        Integer fornecedor = null;
+        if (!fornInput.isEmpty()) {
+            try {
+                fornecedor = Integer.parseInt(fornInput);
+            } catch (NumberFormatException e) {
+                System.out.println("[AVISO] ID do Fornecedor inválido. O produto será salvo sem fornecedor vinculado.");
+            }
+        }
+
+        System.out.println("\nEnviando dados para o controlador...");
+        String resultado = produtoController.cadastrarProduto(id, nome, quant, valor, fornecedor);
+        System.out.println(resultado);
+        pausar();
+    }
+
+    private void listarProdutos() {
+        ViewUtil.clearConsole();
+        ViewUtil.linha(80);
+        System.out.println("\n                               LISTA DE PRODUTOS CADASTRADOS                            ");
+        ViewUtil.linha(80);
+        System.out.println();
+
+        List<ProdutoModel> produtos = produtoController.listarTodos();
+
+        if (produtos.isEmpty()) {
+            System.out.println("Nenhum produto cadastrado no banco de dados.");
+        } else {
+            System.out.printf("%-10s | %-30s | %-12s | %-12s | %-15s\n", "ID", "NOME", "QUANTIDADE", "VALOR", "FORNECEDOR ID");
+            ViewUtil.linha(80);
+            System.out.println();
+            for (ProdutoModel p : produtos) {
+                System.out.printf("%-10d | %-30s | %-12d | %-12d | %-15s\n",
+                        p.getId(),
+                        truncar(p.getNome(), 30),
+                        p.getQuant(),
+                        p.getValor(),
+                        p.getFornecedor() != null ? String.valueOf(p.getFornecedor()) : "-"
+                );
+            }
+            ViewUtil.linha(80);
+            System.out.println();
+            System.out.println("Total de produtos: " + produtos.size());
+        }
+        pausar();
+    }
+
+    private void buscarProduto() {
+        ViewUtil.clearConsole();
+        ViewUtil.linha(50);
+        System.out.println("\n               BUSCAR PRODUTO POR ID              ");
+        ViewUtil.linha(50);
+        System.out.println();
+
+        System.out.print("Digite o ID do produto a ser pesquisado: ");
+        String idInput = ScannerUtil.getString().trim();
+        Integer id = null;
+        try {
+            id = Integer.parseInt(idInput);
+        } catch (NumberFormatException e) {
+            System.out.println("[ERRO] ID inválido.");
+            pausar();
+            return;
+        }
+
+        System.out.println("\nBuscando...");
+        ProdutoModel p = produtoController.buscarPorId(id);
+
+        if (p == null) {
+            System.out.println("[AVISO] Produto não encontrado com o ID informado.");
+        } else {
+            exibirFichaProduto(p);
+        }
+        pausar();
+    }
+
+    private void atualizarProduto() {
+        ViewUtil.clearConsole();
+        ViewUtil.linha(50);
+        System.out.println("\n             ATUALIZAR CADASTRO DE PRODUTO        ");
+        ViewUtil.linha(50);
+        System.out.println();
+
+        System.out.print("Digite o ID do produto que deseja atualizar: ");
+        String idInput = ScannerUtil.getString().trim();
+        Integer id = null;
+        try {
+            id = Integer.parseInt(idInput);
+        } catch (NumberFormatException e) {
+            System.out.println("[ERRO] ID inválido.");
+            pausar();
+            return;
+        }
+
+        ProdutoModel p = produtoController.buscarPorId(id);
+        if (p == null) {
+            System.out.println("[ERRO] Produto não encontrado.");
+            pausar();
+            return;
+        }
+
+        System.out.println("\n--- Dados atuais encontrados. Pressione Enter para manter o valor atual ---");
+
+        System.out.print("Nome [" + p.getNome() + "]: ");
+        String nome = ScannerUtil.getString();
+        if (nome.trim().isEmpty()) nome = p.getNome();
+
+        System.out.print("Quantidade [" + p.getQuant() + "]: ");
+        String quantInput = ScannerUtil.getString().trim();
+        Integer quant = p.getQuant();
+        if (!quantInput.isEmpty()) {
+            try {
+                quant = Integer.parseInt(quantInput);
+            } catch (NumberFormatException e) {
+                System.out.println("[AVISO] Valor inválido. Mantendo a quantidade atual.");
+            }
+        }
+
+        System.out.print("Valor [" + p.getValor() + "]: ");
+        String valorInput = ScannerUtil.getString().trim();
+        Integer valor = p.getValor();
+        if (!valorInput.isEmpty()) {
+            try {
+                valor = Integer.parseInt(valorInput);
+            } catch (NumberFormatException e) {
+                System.out.println("[AVISO] Valor inválido. Mantendo o valor atual.");
+            }
+        }
+
+        String fornAtualLabel = p.getFornecedor() != null ? String.valueOf(p.getFornecedor()) : "nenhum";
+        System.out.print("ID do Fornecedor [" + fornAtualLabel + "] (digite 'remover' para limpar ou Enter para manter): ");
+        String fornInput = ScannerUtil.getString().trim();
+        Integer fornecedor = p.getFornecedor();
+
+        if (!fornInput.isEmpty()) {
+            if (fornInput.equalsIgnoreCase("remover")) {
+                fornecedor = null;
+            } else {
+                try {
+                    fornecedor = Integer.parseInt(fornInput);
+                } catch (NumberFormatException e) {
+                    System.out.println("[AVISO] ID inválido. Mantendo o fornecedor atual.");
+                }
+            }
+        }
+
+        System.out.println("\nEnviando atualizações...");
+        String resultado = produtoController.atualizarProduto(p.getId(), nome, quant, valor, fornecedor);
+        System.out.println(resultado);
+        pausar();
+    }
+
+    private void excluirProduto() {
+        ViewUtil.clearConsole();
+        ViewUtil.linha(50);
+        System.out.println("\n                  EXCLUIR PRODUTO                 ");
+        ViewUtil.linha(50);
+        System.out.println();
+
+        System.out.print("Digite o ID do produto a ser excluído: ");
+        String idInput = ScannerUtil.getString().trim();
+        Integer id = null;
+        try {
+            id = Integer.parseInt(idInput);
+        } catch (NumberFormatException e) {
+            System.out.println("[ERRO] ID inválido.");
+            pausar();
+            return;
+        }
+
+        ProdutoModel p = produtoController.buscarPorId(id);
+        if (p == null) {
+            System.out.println("[ERRO] Produto não encontrado.");
+            pausar();
+            return;
+        }
+
+        exibirFichaProduto(p);
+
+        System.out.print("AVISO: Tem certeza de que deseja EXCLUIR permanentemente este produto? (S/N): ");
+        String confirmacao = ScannerUtil.getString().trim();
+
+        if (confirmacao.equalsIgnoreCase("S")) {
+            System.out.println("\nExcluindo do banco de dados...");
+            String resultado = produtoController.excluirProduto(p.getId());
+            System.out.println(resultado);
+        } else {
+            System.out.println("\nOperação cancelada de forma segura.");
+        }
+        pausar();
+    }
+
+    private void exibirFichaProduto(ProdutoModel p) {
+        ViewUtil.linha(40);
+        System.out.println("\n          DADOS DO PRODUTO ENCONTRADO         ");
+        ViewUtil.linha(40);
+        System.out.println();
+        System.out.println("ID:            " + p.getId());
+        System.out.println("Nome:          " + p.getNome());
+        System.out.println("Quantidade:    " + p.getQuant());
+        System.out.println("Valor:         " + p.getValor());
+        System.out.println("Fornecedor ID: " + (p.getFornecedor() != null ? p.getFornecedor() : "Nenhum vinculado"));
+        ViewUtil.linha(40);
+        System.out.println();
     }
 
 
