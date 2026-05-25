@@ -1,38 +1,40 @@
 package model;
 
 /**
- * Modelo que representa a entidade Cliente do banco de dados.
+ * Modelo que representa a entidade Fornecedor do banco de dados.
  */
-public class ClienteModel {
-    private String cpf;
+public class FornecedorModel {
+    private String cnpj;
     private String nome;
-    private String genero;
+    private String atuacao;
     private String telefone;
     private String email;
     private String senha;
-    private Integer fkVendaId; // Pode ser nulo
+    private Integer fkVendaId;      // Pode ser nulo
+    private String fkClienteCpf;   // Pode ser nulo
 
     // Construtor padrão
-    public ClienteModel() {}
+    public FornecedorModel() {}
 
     // Construtor completo
-    public ClienteModel(String cpf, String nome, String genero, String telefone, String email, String senha, Integer fkVendaId) {
-        this.cpf = cpf;
+    public FornecedorModel(String cnpj, String nome, String atuacao, String telefone, String email, String senha, Integer fkVendaId, String fkClienteCpf) {
+        this.cnpj = cnpj;
         this.nome = nome;
-        this.genero = genero;
+        this.atuacao = atuacao;
         this.telefone = telefone;
         this.email = email;
         this.senha = senha;
         this.fkVendaId = fkVendaId;
+        this.fkClienteCpf = fkClienteCpf;
     }
 
     // Getters e Setters
-    public String getCpf() {
-        return cpf;
+    public String getCnpj() {
+        return cnpj;
     }
 
-    public void setCpf(String cpf) {
-        this.cpf = cpf;
+    public void setCnpj(String cnpj) {
+        this.cnpj = cnpj;
     }
 
     public String getNome() {
@@ -43,12 +45,12 @@ public class ClienteModel {
         this.nome = nome;
     }
 
-    public String getGenero() {
-        return genero;
+    public String getAtuacao() {
+        return atuacao;
     }
 
-    public void setGenero(String genero) {
-        this.genero = genero;
+    public void setAtuacao(String atuacao) {
+        this.atuacao = atuacao;
     }
 
     public String getTelefone() {
@@ -83,24 +85,24 @@ public class ClienteModel {
         this.fkVendaId = fkVendaId;
     }
 
-    // Métodos preexistentes mantidos para compatibilidade
-    public char login() {
-        return 'a';
+    public String getFkClienteCpf() {
+        return fkClienteCpf;
     }
 
-    public char buscarPedidos() {
-        return 'a';
+    public void setFkClienteCpf(String fkClienteCpf) {
+        this.fkClienteCpf = fkClienteCpf;
     }
 
     @Override
     public String toString() {
-        return "ClienteModel{" +
-                "cpf='" + cpf + '\'' +
+        return "FornecedorModel{" +
+                "cnpj='" + cnpj + '\'' +
                 ", nome='" + nome + '\'' +
-                ", genero='" + genero + '\'' +
+                ", atuacao='" + atuacao + '\'' +
                 ", telefone='" + telefone + '\'' +
                 ", email='" + email + '\'' +
                 ", fkVendaId=" + fkVendaId +
+                ", fkClienteCpf='" + fkClienteCpf + '\'' +
                 '}';
     }
 }
