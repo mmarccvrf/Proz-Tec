@@ -17,7 +17,7 @@ public class ViewUtil {
             String os = System.getProperty("os.name").toLowerCase();
 
             if (os.contains("win")) {
-                new ProcessBuilder("cls").inheritIO().start().waitFor();
+                new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
             } else {
                 new ProcessBuilder("clear").inheritIO().start().waitFor();
             }
