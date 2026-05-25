@@ -39,6 +39,10 @@ O sistema funciona no seguinte fluxo:
 
 - MySQL
 
+🗃️ Modelagem do Banco de Dados
+
+Os modelos de banco de dados foram feitos pela ferramenta **brModelo**, que pode ser baixada [aqui](https://sourceforge.net/projects/brmodelo/).
+
 ⚙️ Como executar o projeto localmente
 Clone o repositório:
 
