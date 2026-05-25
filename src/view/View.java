@@ -3,9 +3,11 @@ package view;
 import controller.ClienteController;
 import controller.FornecedorController;
 import controller.ProdutoController;
+import controller.VendaController;
 import model.ClienteModel;
 import model.FornecedorModel;
 import model.ProdutoModel;
+import model.VendaModel;
 import utils.ScannerUtil;
 import utils.ViewUtil;
 
@@ -19,11 +21,13 @@ public class View {
     private final ClienteController clienteController;
     private final FornecedorController fornecedorController;
     private final ProdutoController produtoController;
+    private final VendaController vendaController;
 
     public View() {
         this.clienteController = new ClienteController();
         this.fornecedorController = new FornecedorController();
         this.produtoController = new ProdutoController();
+        this.vendaController = new VendaController();
     }
 
     /**
@@ -36,7 +40,8 @@ public class View {
             System.out.println("1. [CRUD] Gerenciar Clientes");
             System.out.println("2. [CRUD] Gerenciar Fornecedores");
             System.out.println("3. [CRUD] Gerenciar Produtos");
-            System.out.println("4. Realizar Login de Exemplo (Original)");
+            System.out.println("4. [CRUD] Gerenciar Vendas");
+            System.out.println("5. Realizar Login de Exemplo (Original)");
             System.out.println("0. Sair do Sistema");
             System.out.println();
             System.out.print("Escolha uma opção: ");
@@ -54,6 +59,9 @@ public class View {
                     menuProdutos();
                     break;
                 case "4":
+                    menuVendas();
+                    break;
+                case "5":
                     menuLogin();
                     break;
                 case "0":
@@ -200,6 +208,42 @@ public class View {
                     break;
                 case "5":
                     excluirProduto();
+                    break;
+                case "0":
+                    noSubmenu = false;
+                    break;
+                default:
+                    System.out.println("\n[AVISO] Opção inválida! Tente novamente.");
+                    pausar();
+            }
+        }
+    }
+
+    // ==========================================
+    // Submenu de Vendas
+    // ==========================================
+    private void menuVendas() {
+        boolean noSubmenu = true;
+        while (noSubmenu) {
+            ViewUtil.clearConsole();
+            ViewUtil.linha(50);
+            System.out.println("\n        SISTEMA PROZ-TEC - GERENCIAR VENDAS        ");
+            ViewUtil.linha(50);
+            System.out.println();
+            System.out.println("1. Registrar Nova Venda");
+            System.out.println("2. Listar Todas as Vendas");
+            System.out.println("0. Voltar ao Menu Principal");
+            System.out.println();
+            System.out.print("Escolha uma opção: ");
+
+            String opcao = ScannerUtil.getString().trim();
+
+            switch (opcao) {
+                case "1":
+                    cadastrarVenda();
+                    break;
+                case "2":
+                    listarVendas();
                     break;
                 case "0":
                     noSubmenu = false;
@@ -867,6 +911,81 @@ public class View {
         System.out.println("Fornecedor ID: " + (p.getFornecedor() != null ? p.getFornecedor() : "Nenhum vinculado"));
         ViewUtil.linha(40);
         System.out.println();
+    }
+
+    // ==========================================
+    // Fluxos CRUD Venda
+    // ==========================================
+
+    private void cadastrarVenda() {
+        ViewUtil.clearConsole();
+        ViewUtil.linha(50);
+        System.out.println("\n              REGISTRAR NOVA VENDA                ");
+        ViewUtil.linha(50);
+        System.out.println();
+
+        System.out.print("Digite o ID da Venda (apenas números): ");
+        String idInput = ScannerUtil.getString().trim();
+        Integer id = null;
+        try {
+            id = Integer.parseInt(idInput);
+        } catch (NumberFormatException e) {
+            System.out.println("[ERRO] ID inválido. Deve ser um número inteiro.");
+            pausar();
+            return;
+        }
+
+        System.out.print("Digite o CPF do Cliente (11 dígitos): ");
+        String clienteCpf = ScannerUtil.getString();
+
+        System.out.print("Digite o CNPJ do Fornecedor (14 dígitos): ");
+        String fornecedorCnpj = ScannerUtil.getString();
+
+        System.out.print("Digite o ID do Produto: ");
+        String prodInput = ScannerUtil.getString().trim();
+        Integer produtoId = null;
+        try {
+            produtoId = Integer.parseInt(prodInput);
+        } catch (NumberFormatException e) {
+            System.out.println("[ERRO] ID do produto inválido. Deve ser um número inteiro.");
+            pausar();
+            return;
+        }
+
+        System.out.println("\nValidando relações e salvando a venda...");
+        String resultado = vendaController.cadastrarVenda(id, clienteCpf, fornecedorCnpj, produtoId);
+        System.out.println(resultado);
+        pausar();
+    }
+
+    private void listarVendas() {
+        ViewUtil.clearConsole();
+        ViewUtil.linha(90);
+        System.out.println("\n                                 LISTA DE VENDAS REGISTRADAS                              ");
+        ViewUtil.linha(90);
+        System.out.println();
+
+        List<VendaModel> vendas = vendaController.listarTodas();
+
+        if (vendas.isEmpty()) {
+            System.out.println("Nenhuma venda registrada no banco de dados.");
+        } else {
+            System.out.printf("%-10s | %-25s | %-25s | %-20s\n", "ID VENDA", "CLIENTE NOME", "FORNECEDOR NOME", "PRODUTO NOME");
+            ViewUtil.linha(90);
+            System.out.println();
+            for (VendaModel v : vendas) {
+                System.out.printf("%-10d | %-25s | %-25s | %-20s\n",
+                        v.getId(),
+                        truncar(v.getClienteNome() != null ? v.getClienteNome() : "-", 25),
+                        truncar(v.getFornecedorNome() != null ? v.getFornecedorNome() : "-", 25),
+                        truncar(v.getProdutoNome() != null ? v.getProdutoNome() : "-", 20)
+                );
+            }
+            ViewUtil.linha(90);
+            System.out.println();
+            System.out.println("Total de vendas registradas: " + vendas.size());
+        }
+        pausar();
     }
 
 
