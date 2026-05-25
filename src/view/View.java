@@ -1,7 +1,9 @@
 package view;
 
 import controller.ClienteController;
+import controller.FornecedorController;
 import model.ClienteModel;
+import model.FornecedorModel;
 import utils.ScannerUtil;
 import utils.ViewUtil;
 
@@ -12,10 +14,12 @@ import java.util.List;
  */
 public class View {
 
-    private final ClienteController controller;
+    private final ClienteController clienteController;
+    private final FornecedorController fornecedorController;
 
     public View() {
-        this.controller = new ClienteController();
+        this.clienteController = new ClienteController();
+        this.fornecedorController = new FornecedorController();
     }
 
     /**
@@ -26,7 +30,8 @@ public class View {
         while (rodando) {
             exibirCabecalhoPrincipal();
             System.out.println("1. [CRUD] Gerenciar Clientes");
-            System.out.println("2. Realizar Login de Exemplo (Original)");
+            System.out.println("2. [CRUD] Gerenciar Fornecedores");
+            System.out.println("3. Realizar Login de Exemplo (Original)");
             System.out.println("0. Sair do Sistema");
             System.out.println();
             System.out.print("Escolha uma opção: ");
@@ -38,6 +43,9 @@ public class View {
                     menuClientes();
                     break;
                 case "2":
+                    menuFornecedores();
+                    break;
+                case "3":
                     menuLogin();
                     break;
                 case "0":
@@ -51,9 +59,9 @@ public class View {
         }
     }
 
-    /**
-     * Submenu para o CRUD de Clientes
-     */
+    // ==========================================
+    // Submenu de Clientes
+    // ==========================================
     private void menuClientes() {
         boolean noSubmenu = true;
         while (noSubmenu) {
@@ -100,7 +108,55 @@ public class View {
     }
 
     // ==========================================
-    // Fluxos CRUD Individuais
+    // Submenu de Fornecedores
+    // ==========================================
+    private void menuFornecedores() {
+        boolean noSubmenu = true;
+        while (noSubmenu) {
+            ViewUtil.clearConsole();
+            ViewUtil.linha(50);
+            System.out.println("\n     SISTEMA PROZ-TEC - GERENCIAR FORNECEDORES     ");
+            ViewUtil.linha(50);
+            System.out.println();
+            System.out.println("1. Cadastrar Novo Fornecedor");
+            System.out.println("2. Listar Todos os Fornecedores");
+            System.out.println("3. Buscar Fornecedor por CNPJ");
+            System.out.println("4. Atualizar Cadastro de Fornecedor");
+            System.out.println("5. Excluir Fornecedor");
+            System.out.println("0. Voltar ao Menu Principal");
+            System.out.println();
+            System.out.print("Escolha uma opção: ");
+
+            String opcao = ScannerUtil.getString().trim();
+
+            switch (opcao) {
+                case "1":
+                    cadastrarFornecedor();
+                    break;
+                case "2":
+                    listarFornecedores();
+                    break;
+                case "3":
+                    buscarFornecedor();
+                    break;
+                case "4":
+                    atualizarFornecedor();
+                    break;
+                case "5":
+                    excluirFornecedor();
+                    break;
+                case "0":
+                    noSubmenu = false;
+                    break;
+                default:
+                    System.out.println("\n[AVISO] Opção inválida! Tente novamente.");
+                    pausar();
+            }
+        }
+    }
+
+    // ==========================================
+    // Fluxos CRUD Cliente
     // ==========================================
 
     private void cadastrarCliente() {
@@ -140,7 +196,7 @@ public class View {
         }
 
         System.out.println("\nEnviando dados para o controlador...");
-        String resultado = controller.cadastrarCliente(cpf, nome, genero, telefone, email, senha, fkVendaId);
+        String resultado = clienteController.cadastrarCliente(cpf, nome, genero, telefone, email, senha, fkVendaId);
         System.out.println(resultado);
         pausar();
     }
@@ -152,7 +208,7 @@ public class View {
         ViewUtil.linha(90);
         System.out.println();
 
-        List<ClienteModel> clientes = controller.listarTodos();
+        List<ClienteModel> clientes = clienteController.listarTodos();
 
         if (clientes.isEmpty()) {
             System.out.println("Nenhum cliente cadastrado no banco de dados.");
@@ -187,7 +243,7 @@ public class View {
         String cpf = ScannerUtil.getString();
 
         System.out.println("\nBuscando...");
-        ClienteModel c = controller.buscarPorCpf(cpf);
+        ClienteModel c = clienteController.buscarPorCpf(cpf);
 
         if (c == null) {
             System.out.println("[AVISO] Cliente não encontrado com o CPF informado.");
@@ -207,7 +263,7 @@ public class View {
         System.out.print("Digite o CPF do cliente que deseja atualizar: ");
         String cpf = ScannerUtil.getString();
 
-        ClienteModel c = controller.buscarPorCpf(cpf);
+        ClienteModel c = clienteController.buscarPorCpf(cpf);
         if (c == null) {
             System.out.println("[ERRO] Cliente não encontrado.");
             pausar();
@@ -254,7 +310,7 @@ public class View {
         }
 
         System.out.println("\nEnviando atualizações...");
-        String resultado = controller.atualizarCliente(c.getCpf(), nome, genero, telefone, email, senha, fkVendaId);
+        String resultado = clienteController.atualizarCliente(c.getCpf(), nome, genero, telefone, email, senha, fkVendaId);
         System.out.println(resultado);
         pausar();
     }
@@ -269,7 +325,7 @@ public class View {
         System.out.print("Digite o CPF do cliente a ser excluído: ");
         String cpf = ScannerUtil.getString();
 
-        ClienteModel c = controller.buscarPorCpf(cpf);
+        ClienteModel c = clienteController.buscarPorCpf(cpf);
         if (c == null) {
             System.out.println("[ERRO] Cliente não encontrado.");
             pausar();
@@ -283,13 +339,226 @@ public class View {
 
         if (confirmacao.equalsIgnoreCase("S")) {
             System.out.println("\nExcluindo do banco de dados...");
-            String resultado = controller.excluirCliente(c.getCpf());
+            String resultado = clienteController.excluirCliente(c.getCpf());
             System.out.println(resultado);
         } else {
             System.out.println("\nOperação cancelada de forma segura.");
         }
         pausar();
     }
+
+
+    // ==========================================
+    // Fluxos CRUD Fornecedor
+    // ==========================================
+
+    private void cadastrarFornecedor() {
+        ViewUtil.clearConsole();
+        ViewUtil.linha(50);
+        System.out.println("\n             CADASTRAR NOVO FORNECEDOR            ");
+        ViewUtil.linha(50);
+        System.out.println();
+
+        System.out.print("Digite o CNPJ (apenas números, 14 dígitos): ");
+        String cnpj = ScannerUtil.getString();
+
+        System.out.print("Digite o Nome do Fornecedor: ");
+        String nome = ScannerUtil.getString();
+
+        System.out.print("Digite a Área de Atuação: ");
+        String atuacao = ScannerUtil.getString();
+
+        System.out.print("Digite o Telefone: ");
+        String telefone = ScannerUtil.getString();
+
+        System.out.print("Digite o E-mail: ");
+        String email = ScannerUtil.getString();
+
+        System.out.print("Digite a Senha de acesso: ");
+        String senha = ScannerUtil.getString();
+
+        System.out.print("Digite o ID da Venda (ou Enter para nenhum): ");
+        String vendaInput = ScannerUtil.getString();
+        Integer fkVendaId = null;
+        if (!vendaInput.trim().isEmpty()) {
+            try {
+                fkVendaId = Integer.parseInt(vendaInput.trim());
+            } catch (NumberFormatException e) {
+                System.out.println("[AVISO] ID de Venda inválido. O fornecedor será cadastrado sem vínculo de venda.");
+            }
+        }
+
+        System.out.print("Digite o CPF do Cliente Vinculado (ou Enter para nenhum): ");
+        String clienteCpf = ScannerUtil.getString();
+        if (clienteCpf.trim().isEmpty()) {
+            clienteCpf = null;
+        }
+
+        System.out.println("\nEnviando dados para o controlador...");
+        String resultado = fornecedorController.cadastrarFornecedor(cnpj, nome, atuacao, telefone, email, senha, fkVendaId, clienteCpf);
+        System.out.println(resultado);
+        pausar();
+    }
+
+    private void listarFornecedores() {
+        ViewUtil.clearConsole();
+        ViewUtil.linha(100);
+        System.out.println("\n                               LISTA DE FORNECEDORES CADASTRADOS                          ");
+        ViewUtil.linha(100);
+        System.out.println();
+
+        List<FornecedorModel> fornecedores = fornecedorController.listarTodos();
+
+        if (fornecedores.isEmpty()) {
+            System.out.println("Nenhum fornecedor cadastrado no banco de dados.");
+        } else {
+            System.out.printf("%-18s | %-22s | %-22s | %-16s | %-12s\n", "CNPJ", "NOME", "EMAIL", "ATUAÇÃO", "TELEFONE");
+            ViewUtil.linha(100);
+            System.out.println();
+            for (FornecedorModel f : fornecedores) {
+                System.out.printf("%-18s | %-22s | %-22s | %-16s | %-12s\n",
+                        formatarCnpj(f.getCnpj()),
+                        truncar(f.getNome(), 22),
+                        truncar(f.getEmail(), 22),
+                        truncar(f.getAtuacao(), 16),
+                        f.getTelefone() != null ? f.getTelefone() : "-"
+                );
+            }
+            ViewUtil.linha(100);
+            System.out.println();
+            System.out.println("Total de fornecedores: " + fornecedores.size());
+        }
+        pausar();
+    }
+
+    private void buscarFornecedor() {
+        ViewUtil.clearConsole();
+        ViewUtil.linha(50);
+        System.out.println("\n             BUSCAR FORNECEDOR POR CNPJ           ");
+        ViewUtil.linha(50);
+        System.out.println();
+
+        System.out.print("Digite o CNPJ a ser pesquisado: ");
+        String cnpj = ScannerUtil.getString();
+
+        System.out.println("\nBuscando...");
+        FornecedorModel f = fornecedorController.buscarPorCnpj(cnpj);
+
+        if (f == null) {
+            System.out.println("[AVISO] Fornecedor não encontrado com o CNPJ informado.");
+        } else {
+            exibirFichaFornecedor(f);
+        }
+        pausar();
+    }
+
+    private void atualizarFornecedor() {
+        ViewUtil.clearConsole();
+        ViewUtil.linha(50);
+        System.out.println("\n           ATUALIZAR CADASTRO DE FORNECEDOR       ");
+        ViewUtil.linha(50);
+        System.out.println();
+
+        System.out.print("Digite o CNPJ do fornecedor que deseja atualizar: ");
+        String cnpj = ScannerUtil.getString();
+
+        FornecedorModel f = fornecedorController.buscarPorCnpj(cnpj);
+        if (f == null) {
+            System.out.println("[ERRO] Fornecedor não encontrado.");
+            pausar();
+            return;
+        }
+
+        System.out.println("\n--- Dados atuais encontrados. Pressione Enter para manter o valor atual ---");
+
+        System.out.print("Nome [" + f.getNome() + "]: ");
+        String nome = ScannerUtil.getString();
+        if (nome.trim().isEmpty()) nome = f.getNome();
+
+        System.out.print("Atuação [" + f.getAtuacao() + "]: ");
+        String atuacao = ScannerUtil.getString();
+        if (atuacao.trim().isEmpty()) atuacao = f.getAtuacao();
+
+        System.out.print("Telefone [" + f.getTelefone() + "]: ");
+        String telefone = ScannerUtil.getString();
+        if (telefone.trim().isEmpty()) telefone = f.getTelefone();
+
+        System.out.print("E-mail [" + f.getEmail() + "]: ");
+        String email = ScannerUtil.getString();
+        if (email.trim().isEmpty()) email = f.getEmail();
+
+        System.out.print("Senha [" + f.getSenha() + "]: ");
+        String senha = ScannerUtil.getString();
+        if (senha.trim().isEmpty()) senha = f.getSenha();
+
+        String vendaAtualLabel = f.getFkVendaId() != null ? String.valueOf(f.getFkVendaId()) : "nenhum";
+        System.out.print("ID da Venda [" + vendaAtualLabel + "] (digite 'remover' para limpar ou Enter para manter): ");
+        String vendaInput = ScannerUtil.getString().trim();
+        Integer fkVendaId = f.getFkVendaId();
+
+        if (!vendaInput.isEmpty()) {
+            if (vendaInput.equalsIgnoreCase("remover")) {
+                fkVendaId = null;
+            } else {
+                try {
+                    fkVendaId = Integer.parseInt(vendaInput);
+                } catch (NumberFormatException e) {
+                    System.out.println("[AVISO] ID inválido. Mantendo o ID atual.");
+                }
+            }
+        }
+
+        String clienteCpfAtualLabel = f.getFkClienteCpf() != null ? formatarCpf(f.getFkClienteCpf()) : "nenhum";
+        System.out.print("CPF do Cliente Vinculado [" + clienteCpfAtualLabel + "] (digite 'remover' para limpar ou Enter para manter): ");
+        String clienteCpfInput = ScannerUtil.getString().trim();
+        String fkClienteCpf = f.getFkClienteCpf();
+
+        if (!clienteCpfInput.isEmpty()) {
+            if (clienteCpfInput.equalsIgnoreCase("remover")) {
+                fkClienteCpf = "remover"; // Flag para controller limpar
+            } else {
+                fkClienteCpf = clienteCpfInput;
+            }
+        }
+
+        System.out.println("\nEnviando atualizações...");
+        String resultado = fornecedorController.atualizarFornecedor(f.getCnpj(), nome, atuacao, telefone, email, senha, fkVendaId, fkClienteCpf);
+        System.out.println(resultado);
+        pausar();
+    }
+
+    private void excluirFornecedor() {
+        ViewUtil.clearConsole();
+        ViewUtil.linha(50);
+        System.out.println("\n                EXCLUIR FORNECEDOR                ");
+        ViewUtil.linha(50);
+        System.out.println();
+
+        System.out.print("Digite o CNPJ do fornecedor a ser excluído: ");
+        String cnpj = ScannerUtil.getString();
+
+        FornecedorModel f = fornecedorController.buscarPorCnpj(cnpj);
+        if (f == null) {
+            System.out.println("[ERRO] Fornecedor não encontrado.");
+            pausar();
+            return;
+        }
+
+        exibirFichaFornecedor(f);
+
+        System.out.print("AVISO: Tem certeza de que deseja EXCLUIR permanentemente este fornecedor? (S/N): ");
+        String confirmacao = ScannerUtil.getString().trim();
+
+        if (confirmacao.equalsIgnoreCase("S")) {
+            System.out.println("\nExcluindo do banco de dados...");
+            String resultado = fornecedorController.excluirFornecedor(f.getCnpj());
+            System.out.println(resultado);
+        } else {
+            System.out.println("\nOperação cancelada de forma segura.");
+        }
+        pausar();
+    }
+
 
     // ==========================================
     // Métodos Auxiliares e Mock Original
@@ -337,6 +606,22 @@ public class View {
         System.out.println();
     }
 
+    private void exibirFichaFornecedor(FornecedorModel f) {
+        ViewUtil.linha(40);
+        System.out.println("\n         DADOS DO FORNECEDOR FOUND        ");
+        ViewUtil.linha(40);
+        System.out.println();
+        System.out.println("CNPJ:       " + formatarCnpj(f.getCnpj()));
+        System.out.println("Nome:       " + f.getNome());
+        System.out.println("Atuação:    " + f.getAtuacao());
+        System.out.println("Telefone:   " + (f.getTelefone() != null ? f.getTelefone() : "Não informado"));
+        System.out.println("E-mail:     " + f.getEmail());
+        System.out.println("Venda ID:   " + (f.getFkVendaId() != null ? f.getFkVendaId() : "Nenhuma vinculada"));
+        System.out.println("Cliente CPF:" + (f.getFkClienteCpf() != null ? formatarCpf(f.getFkClienteCpf()) : "Nenhum vinculado"));
+        ViewUtil.linha(40);
+        System.out.println();
+    }
+
     private void pausar() {
         System.out.println("\nPressione Enter para continuar...");
         ScannerUtil.getString();
@@ -345,6 +630,11 @@ public class View {
     private String formatarCpf(String cpf) {
         if (cpf == null || cpf.length() != 11) return cpf;
         return cpf.substring(0, 3) + "." + cpf.substring(3, 6) + "." + cpf.substring(6, 9) + "-" + cpf.substring(9);
+    }
+
+    private String formatarCnpj(String cnpj) {
+        if (cnpj == null || cnpj.length() != 14) return cnpj;
+        return cnpj.substring(0, 2) + "." + cnpj.substring(2, 5) + "." + cnpj.substring(5, 8) + "/" + cnpj.substring(8, 12) + "-" + cnpj.substring(12);
     }
 
     private String truncar(String texto, int tamanhoMax) {
