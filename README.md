@@ -44,10 +44,20 @@ O sistema funciona no seguinte fluxo:
 Os modelos de banco de dados foram feitos pela ferramenta **brModelo**, que pode ser baixada [aqui](https://sourceforge.net/projects/brmodelo/).
 
 ⚙️ Como executar o projeto localmente
-Clone o repositório:
+
+1. Clone o repositório:
 
 ```bash
 git clone https://github.com/gabb-dev/Proz-Tec.git
 ```
 
-#### Após baixar o projeto basta execultar a classe **Main.java**
+2. Renomeie o arquivo .env.example para .env e preencha as variáveis de conexão com o banco de dados;
+
+3. Execute as instruções SQL do arquivo `docs/db/modelo-fisico/migration.sql` no seu console MySQL para criar um banco de dados e popular com dados de exemplo;
+
+4. Compile e execute com o comando:
+
+```bash
+javac -d bin src/Main.java
+java -cp "bin;src/database/mysql-connector-j-8.4.0.jar" Main
+```
